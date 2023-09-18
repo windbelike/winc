@@ -33,16 +33,16 @@ export default function Home() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div className="flex gap-3 grow min-w-0">
           <input ref={nameRef} className="h-12 border border-black grow p-3 rounded-sm min-w-0
-          focus:ring outline-none ring-black"
+          "
             type="text" placeholder="Name" />
           <input ref={emailRef} className="h-12 border border-black grow p-3 rounded-sm min-w-0
-          focus:ring outline-none ring-black"
+          "
             type="text" placeholder="Email (Optional)" />
         </div>
         <textarea ref={inputRef} className="h-24 border border-black grow p-3 rounded-sm focus:ring outline-none ring-black"
           placeholder="Say someting..." />
         <button className="self-start p-3 font-bold bg-gray-300 
-          hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 rounded-sm focus:ring outline-none ring-black">
+        hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 rounded-sm">
           Comment
         </button>
       </form>
