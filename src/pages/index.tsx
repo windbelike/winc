@@ -33,14 +33,14 @@ export default function Home() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <span className="font-bold text-2xl">Leave a tone</span>
         <div className="flex gap-3 grow min-w-0">
-          <input ref={nameRef} className="h-12 border border-black grow p-3 rounded-sm min-w-0
+          <input ref={nameRef} className="h-12 border-l-4 outline-none border-black grow p-3 rounded-sm min-w-0
           "
             type="text" placeholder="Name" />
-          <input ref={emailRef} className="h-12 border border-black grow p-3 rounded-sm min-w-0
+          <input ref={emailRef} className="h-12 border-l-4 outline-none border-black grow p-3 rounded-sm min-w-0
           "
             type="text" placeholder="Email (Optional)" />
         </div>
-        <textarea ref={inputRef} className="h-24 border border-black grow p-3 rounded-sm "
+        <textarea ref={inputRef} className="h-24 border-l-4 outline-none border-black grow p-3 rounded-sm "
           placeholder="Say someting..." />
         <button className="self-start p-3 font-bold bg-gray-300 
         hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 rounded-sm">
