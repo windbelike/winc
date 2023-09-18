@@ -39,7 +39,7 @@ export default function Home() {
           "
             type="text" placeholder="Email (Optional)" />
         </div>
-        <textarea ref={inputRef} className="h-24 border border-black grow p-3 rounded-sm focus:ring outline-none ring-black"
+        <textarea ref={inputRef} className="h-24 border border-black grow p-3 rounded-sm "
           placeholder="Say someting..." />
         <button className="self-start p-3 font-bold bg-gray-300 
         hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 rounded-sm">
