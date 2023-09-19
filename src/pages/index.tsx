@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <main>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <span className="font-bold text-2xl">Leave a tone</span>
+        <span className="font-bold text-2xl">Leave a tone (To Be Implement)</span>
         <div className="flex gap-3 grow min-w-0">
           <input ref={nameRef} className="h-12 border-l-4 outline-none border-black grow p-3 rounded-sm min-w-0
           "
