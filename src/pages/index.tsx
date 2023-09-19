@@ -1,11 +1,24 @@
-import { FormEvent, useRef } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
+
+async function createComment(comment: any) {
+  return await fetch('/api/comment/create', {
+    method: 'POST',
+    body: JSON.stringify(comment)
+  })
+}
 
 export default function Home() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
+  const [pageId, setPageId] = useState<string | null>(null);
 
-  function handleSubmit(e: FormEvent) {
+  useEffect(() => {
+    setPageId(window.location.href);
+  }, []);
+
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (nameRef.current?.value.trim() == '') {
       alert("Name is required.")
@@ -17,12 +30,17 @@ export default function Home() {
     }
 
     const comment = {
-      input: inputRef.current?.value,
-      name: nameRef.current?.value,
-      emailRef: emailRef.current?.value
+      comment: {
+        content: inputRef.current?.value,
+        name: nameRef.current?.value,
+        email: emailRef.current?.value,
+        pageId
+      }
     }
 
     // call api
+    const createResult = await createComment(comment)
+    console.log("create comment result: ", JSON.stringify(createResult))
 
     console.log("Submit comment:", JSON.stringify(comment))
   }
@@ -31,7 +49,7 @@ export default function Home() {
   return (
     <main>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <span className="font-bold text-2xl">Leave a tone (To Be Implement)</span>
+        <span className="font-bold text-2xl mb-6">Leave a tone (To Be Implement)</span>
         <div className="flex gap-3 grow min-w-0">
           <input ref={nameRef} className="h-12 border-l-4 outline-none border-black grow p-3 rounded-sm min-w-0
           "
