@@ -1,11 +1,20 @@
 import { useRouter } from "next/router"
 import { FormEvent, useEffect, useRef, useState } from "react"
+import useSWR from "swr"
 
 async function createComment(comment: any) {
   return await fetch('/api/comment/create', {
     method: 'POST',
     body: JSON.stringify(comment)
   })
+}
+
+async function fetchComment(pageId: any) {
+  const commentResult = await fetch('/api/comment/find?pageId=' + pageId, {
+    method: 'GET',
+  })
+  console.log("result:", commentResult)
+  return await commentResult.json()
 }
 
 export default function Home() {
@@ -22,6 +31,10 @@ export default function Home() {
     setPageId(router.query.ref);
   }, [router.query.ref]);
 
+  const { data, error, isLoading } = useSWR("/api/comment/find?pageId=" + pageId, () => fetchComment(pageId))
+  if (data) {
+    console.log("comment data:", JSON.stringify(data))
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -70,6 +83,34 @@ export default function Home() {
           Comment
         </button>
       </form>
+      <Comments data={data} />
     </main>
+  )
+}
+
+// todo: paging, name & email & content limit
+// todo: reply
+
+function Comments({ data }: any) {
+  console.log(data)
+  if (data == null || data.commentList == null || data.commentList.length == 0) {
+    return
+  }
+  return (
+    <>
+      <ul className="flex flex-col gap-4 mt-12">
+        {data.commentList.map((comment: any, i: number) => {
+          return (
+            <li className="flex flex-col gap-1" key={i}>
+              <div>
+                <p className="font-bold text-lg">{comment.name}</p>
+                <div className="text-gray-500">{comment.createdAt}</div>
+              </div>
+              <p className="break-words">{comment.content}</p>
+            </li>
+          )
+        })}
+      </ul>
+    </>
   )
 }
