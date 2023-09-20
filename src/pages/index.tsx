@@ -13,7 +13,6 @@ export default function Home() {
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  console.log(router.query.ref)
   const [pageId, setPageId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,7 +20,7 @@ export default function Home() {
       return
     }
     setPageId(router.query.ref);
-  }, []);
+  }, [router.query.ref]);
 
 
   async function handleSubmit(e: FormEvent) {
