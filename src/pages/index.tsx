@@ -1,3 +1,4 @@
+import { useRouter } from "next/router"
 import { FormEvent, useEffect, useRef, useState } from "react"
 
 async function createComment(comment: any) {
@@ -11,10 +12,15 @@ export default function Home() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+  console.log(router.query.ref)
   const [pageId, setPageId] = useState<string | null>(null);
 
   useEffect(() => {
-    setPageId(window.location.href);
+    if (typeof router.query.ref != 'string') {
+      return
+    }
+    setPageId(router.query.ref);
   }, []);
 
 
