@@ -1,15 +1,27 @@
 import { useRouter } from "next/router"
+import { type } from "os"
 import { FormEvent, useEffect, useRef, useState } from "react"
 import useSWR from "swr"
+import useSWRMutation from 'swr/mutation'
 
-async function createComment(comment: any) {
-  return await fetch('/api/comment/create', {
+
+type CommentBodyType = {
+  comment: {
+    name: string
+    email?: string
+    content: string
+    pageId: string
+  }
+}
+
+async function createComment(url: string, { arg }: { arg: CommentBodyType }) {
+  return await fetch(url, {
     method: 'POST',
-    body: JSON.stringify(comment)
+    body: JSON.stringify(arg)
   })
 }
 
-async function fetchComment(pageId: any) {
+async function fetchComment(pageId: string) {
   const commentResult = await fetch('/api/comment/find?pageId=' + pageId, {
     method: 'GET',
   })
@@ -23,13 +35,18 @@ export default function Home() {
   const emailRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const [pageId, setPageId] = useState<string | null>(null);
+  const { trigger, isMutating } = useSWRMutation('/api/comment/create', createComment)
 
   useEffect(() => {
-    if (typeof router.query.ref != 'string') {
+    if (typeof router.query.pageId != 'string') {
       return
     }
-    setPageId(router.query.ref);
+    setPageId(router.query.pageId);
   }, [router.query.ref]);
+
+  if (pageId == null || typeof pageId != 'string') {
+    return (<h1>Invalid pageId</h1>)
+  }
 
   const { data, error, isLoading } = useSWR("/api/comment/find?pageId=" + pageId, () => fetchComment(pageId))
   if (data) {
@@ -46,21 +63,29 @@ export default function Home() {
       alert("Comment is required.")
       return
     }
+    if (pageId == null) {
+      return
+    }
 
-    const comment = {
+    const body: CommentBodyType = {
       comment: {
-        content: inputRef.current?.value,
-        name: nameRef.current?.value,
-        email: emailRef.current?.value,
+        content: inputRef.current!.value,
+        name: nameRef.current!.value,
+        email: emailRef.current!.value,
         pageId
       }
     }
 
     // call api
-    const createResult = await createComment(comment)
-    console.log("create comment result: ", JSON.stringify(createResult))
 
-    console.log("Submit comment:", JSON.stringify(comment))
+    try {
+      const createResult = await trigger(body)
+      console.log("create comment result: ", JSON.stringify(createResult))
+    } catch (e) {
+      console.error(e)
+    }
+    console.log("Submit comment:", JSON.stringify(body))
+
   }
 
 
@@ -80,7 +105,7 @@ export default function Home() {
           placeholder="Say someting..." />
         <button className="self-start p-3 font-bold bg-gray-300 
         hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 rounded-sm">
-          Comment
+          {isMutating ? 'Sending' : 'Comment'}
         </button>
       </form>
       <Comments data={data} />
