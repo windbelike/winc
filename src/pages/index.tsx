@@ -21,7 +21,7 @@ async function createComment(url: string, { arg }: { arg: CommentBodyType }) {
   })
 }
 
-async function fetchComment(pageId: string) {
+async function fetchComment(pageId: any) {
   const commentResult = await fetch('/api/comment/find?pageId=' + pageId, {
     method: 'GET',
   })
@@ -43,10 +43,6 @@ export default function Home() {
     }
     setPageId(router.query.pageId);
   }, [router.query.pageId]);
-
-  if (pageId == null || typeof pageId != 'string') {
-    return (<h1>Invalid pageId</h1>)
-  }
 
   const { data, error, isLoading } = useSWR("/api/comment/find?pageId=" + pageId, () => fetchComment(pageId))
   if (data) {
