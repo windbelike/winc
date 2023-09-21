@@ -42,7 +42,7 @@ export default function Home() {
       return
     }
     setPageId(router.query.pageId);
-  }, [router.query.ref]);
+  }, [router.query.pageId]);
 
   if (pageId == null || typeof pageId != 'string') {
     return (<h1>Invalid pageId</h1>)
