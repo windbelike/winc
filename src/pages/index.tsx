@@ -1,6 +1,7 @@
 import { useRouter } from "next/router"
 import { type } from "os"
 import { FormEvent, useEffect, useRef, useState } from "react"
+import toast, { Toaster } from "react-hot-toast"
 import useSWR from "swr"
 import useSWRMutation from 'swr/mutation'
 
@@ -44,7 +45,10 @@ export default function Home() {
     setPageId(router.query.pageId);
   }, [router.query.pageId]);
 
-  const { data, error, isLoading } = useSWR("/api/comment/find?pageId=" + pageId, () => fetchComment(pageId))
+  const { data, error, isLoading } = useSWR("/api/comment/find?pageId=" + pageId,
+    () => fetchComment(pageId),
+    { refreshInterval: 1000 }
+  )
   if (data) {
     console.log("comment data:", JSON.stringify(data))
   }
@@ -77,11 +81,12 @@ export default function Home() {
     try {
       const createResult = await trigger(body)
       console.log("create comment result: ", JSON.stringify(createResult))
+      toast.success('Comment Sent')
     } catch (e) {
       console.error(e)
+      toast.error('Failed to Send')
     }
     console.log("Submit comment:", JSON.stringify(body))
-
   }
 
 
@@ -105,6 +110,7 @@ export default function Home() {
         </button>
       </form>
       <Comments data={data} />
+      <div><Toaster /></div>
     </main>
   )
 }
