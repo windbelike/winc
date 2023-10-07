@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { useRouter } from "next/router"
 import { FormEvent, useEffect, useRef, useState } from "react"
 import toast, { Toaster } from "react-hot-toast"
@@ -128,7 +129,7 @@ function Comments({ data }: any) {
             <li className="flex flex-col gap-1" key={i}>
               <div>
                 <p className="font-bold text-lg">{comment.name}</p>
-                <div className="text-gray-500">{comment.createdAt}</div>
+                <div className="text-gray-500">{format(comment.createdAt, 'yyyy/MM/dd')}</div>
               </div>
               <p className="break-words">{comment.content}</p>
             </li>
