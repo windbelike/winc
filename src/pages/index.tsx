@@ -4,9 +4,11 @@ import { FormEvent, useEffect, useRef, useState } from "react"
 import toast, { Toaster } from "react-hot-toast"
 import useSWR from "swr"
 import useSWRMutation from 'swr/mutation'
+import { isError } from "util"
+import { z } from 'zod';
 
 
-type CommentBodyType = {
+type CommentBody = {
   comment: {
     name: string
     email?: string
@@ -15,11 +17,16 @@ type CommentBodyType = {
   }
 }
 
-async function createComment(url: string, { arg }: { arg: CommentBodyType }) {
+const WindcResponse = z.object({
+  code: z.number(),
+  message: z.string(),
+})
+
+async function createComment(url: string, { arg }: { arg: CommentBody }) {
   return await fetch(url, {
     method: 'POST',
     body: JSON.stringify(arg)
-  })
+  }).then(res => res.json())
 }
 
 async function fetchComment(pageId: any) {
@@ -48,25 +55,26 @@ export default function Home() {
   const { data, error, isLoading, mutate } = useSWR("/api/comment/find?pageId=" + pageId,
     () => fetchComment(pageId)
   )
-  if (data) {
-    console.log("comment data:", JSON.stringify(data))
+
+  if (error) {
+    console.error(error)
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (nameRef.current?.value.trim() == '') {
-      alert("Name is required.")
+      toast.error("Name is required.")
       return
     }
     if (inputRef.current?.value.trim() == '') {
-      alert("Comment is required.")
+      toast.error("Comment is required.")
       return
     }
     if (pageId == null) {
       return
     }
 
-    const body: CommentBodyType = {
+    const body: CommentBody = {
       comment: {
         content: inputRef.current!.value,
         name: nameRef.current!.value,
@@ -76,10 +84,15 @@ export default function Home() {
     }
 
     try {
-      const createResult = await trigger(body)
+      let createResult = await trigger(body)
       console.log("create comment result: ", JSON.stringify(createResult))
-      toast.success('Comment Sent')
-      mutate()
+      let createResp = WindcResponse.parse(createResult)
+      if (createResp.code == 0) {
+        toast.success('Comment Sent')
+        mutate()
+      } else {
+        toast.error(createResp.message)
+      }
     } catch (e) {
       console.error(e)
       toast.error('Failed to Send')
@@ -91,7 +104,7 @@ export default function Home() {
   return (
     <main>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <span className="font-bold text-2xl mb-6">Leave a tone (To Be Implement)</span>
+        <span className="font-bold text-2xl mb-6">Leave a tone</span>
         <div className="flex gap-3 grow min-w-0">
           <input ref={nameRef} className="h-12 border-l-4 outline-none border-black grow p-3 rounded-sm min-w-0
           "
@@ -103,11 +116,13 @@ export default function Home() {
         <textarea ref={inputRef} className="h-24 border-l-4 outline-none border-black grow p-3 rounded-sm "
           placeholder="Say someting..." />
         <button className="self-start p-3 font-bold bg-gray-300 
-        hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 rounded-sm">
+        hover:bg-gray-400 active:bg-gray-500 rounded-sm">
           {isMutating ? 'Sending' : 'Comment'}
         </button>
       </form>
-      <Comments data={data} />
+      {error && <p> fetching comment error </p>}
+      {isLoading && <p> loading... </p>}
+      {data && <Comments data={data} />}
       <div><Toaster /></div>
     </main>
   )
@@ -117,7 +132,6 @@ export default function Home() {
 // todo: reply
 
 function Comments({ data }: any) {
-  console.log(data)
   if (data == null || data.commentList == null || data.commentList.length == 0) {
     return
   }
@@ -129,7 +143,7 @@ function Comments({ data }: any) {
             <li className="flex flex-col gap-1" key={i}>
               <div>
                 <p className="font-bold text-lg">{comment.name}</p>
-                <div className="text-gray-500">{format(comment.createdAt, 'yyyy/MM/dd')}</div>
+                <div className="text-gray-500">{format(Date.parse(comment.createdAt), 'yyyy/MM/dd')}</div>
               </div>
               <p className="break-words">{comment.content}</p>
             </li>

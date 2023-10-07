@@ -25,6 +25,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       const validComment = Comment.parse(comment)
+      if (validComment.name.length > 16) {
+        res.status(200).json({ code: 1, message: 'Name too long' })
+        return
+      }
+      if (validComment.email != null && validComment.email.length > 32) {
+        res.status(200).json({ code: 1, message: 'Email too long' })
+        return
+      }
+      if (validComment.content.length > 3000) {
+        res.status(200).json({ code: 1, message: 'Content too long' })
+        return
+      }
       console.log("validComment:", JSON.stringify(validComment))
       const createResult = await prisma.comment.create({
         data: {
