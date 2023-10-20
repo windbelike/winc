@@ -29,6 +29,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "prettier": "3.0.3",
     "prisma": "^5.3.1"
   }
 }
