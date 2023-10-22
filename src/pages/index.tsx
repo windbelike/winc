@@ -42,6 +42,10 @@ export default function Home() {
   const { trigger, isMutating } = useSWRMutation("/api/comment", createComment);
 
   useEffect(() => {
+    if (router.query.pageId == null) {
+      setPageId("untitled");
+      return;
+    }
     if (typeof router.query.pageId != "string") {
       return;
     }
@@ -72,10 +76,10 @@ export default function Home() {
     }
 
     const body: CommentBody = {
-        content: inputRef.current!.value,
-        name: nameRef.current!.value,
-        email: emailRef.current!.value,
-        pageId,
+      content: inputRef.current!.value,
+      name: nameRef.current!.value,
+      email: emailRef.current!.value,
+      pageId,
     };
 
     try {
