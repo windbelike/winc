@@ -8,6 +8,7 @@ const Comment = z.object({
   pageId: z.string(),
   name: z.string(),
 });
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -18,6 +19,9 @@ export default async function handler(
       return;
     }
     const body = JSON.parse(req.body);
+    if (body.pageId == null) {
+      body.pageId = "untitled";
+    }
 
     try {
       const validComment = Comment.parse(body);
@@ -49,14 +53,15 @@ export default async function handler(
       return;
     }
   } else {
-    const pageId = req.query.pageId;
+    let pageId = req.query.pageId;
     if (typeof pageId != "string") {
       res.status(200).json({ code: 1, message: "Invalid param" });
       return;
     }
-    if (pageId == null || pageId.trim() == "") {
-      res.status(200).json({ code: 1, message: "Invalid param" });
-      return;
+    if (pageId == null) {
+      pageId = "untitled";
+    } else {
+      pageId = pageId.trim();
     }
     const commentList = await prisma.comment.findMany({
       where: {
