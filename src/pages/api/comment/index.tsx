@@ -8,7 +8,6 @@ const Comment = z.object({
   pageId: z.string(),
   name: z.string(),
 });
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -19,13 +18,9 @@ export default async function handler(
       return;
     }
     const body = JSON.parse(req.body);
-    console.log("body:", body);
-
-    const { comment } = body;
-    console.log("comment:", body.comment);
 
     try {
-      const validComment = Comment.parse(comment);
+      const validComment = Comment.parse(body);
       if (validComment.name.length > 16) {
         res.status(200).json({ code: 1, message: "Name too long" });
         return;
@@ -54,6 +49,23 @@ export default async function handler(
       return;
     }
   } else {
-    res.status(200).json({ message: "Invalid method", code: 1 });
+    const pageId = req.query.pageId;
+    if (typeof pageId != "string") {
+      res.status(200).json({ code: 1, message: "Invalid param" });
+      return;
+    }
+    if (pageId == null || pageId.trim() == "") {
+      res.status(200).json({ code: 1, message: "Invalid param" });
+      return;
+    }
+    const commentList = await prisma.comment.findMany({
+      where: {
+        pageId,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+    res.status(200).json({ code: 0, commentList });
   }
 }

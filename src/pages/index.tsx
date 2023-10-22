@@ -7,12 +7,10 @@ import useSWRMutation from "swr/mutation";
 import { z } from "zod";
 
 type CommentBody = {
-  comment: {
-    name: string;
-    email?: string;
-    content: string;
-    pageId: string;
-  };
+  name: string;
+  email?: string;
+  content: string;
+  pageId: string;
 };
 
 const WindcResponse = z.object({
@@ -28,7 +26,7 @@ async function createComment(url: string, { arg }: { arg: CommentBody }) {
 }
 
 async function fetchComment(pageId: any) {
-  const commentResult = await fetch("/api/comment/find?pageId=" + pageId, {
+  const commentResult = await fetch("/api/comment?pageId=" + pageId, {
     method: "GET",
   });
   console.log("result:", commentResult);
@@ -41,10 +39,7 @@ export default function Home() {
   const emailRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [pageId, setPageId] = useState<string | null>(null);
-  const { trigger, isMutating } = useSWRMutation(
-    "/api/comment/create",
-    createComment,
-  );
+  const { trigger, isMutating } = useSWRMutation("/api/comment", createComment);
 
   useEffect(() => {
     if (typeof router.query.pageId != "string") {
@@ -54,7 +49,7 @@ export default function Home() {
   }, [router.query.pageId]);
 
   const { data, error, isLoading, mutate } = useSWR(
-    "/api/comment/find?pageId=" + pageId,
+    "/api/comment?pageId=" + pageId,
     () => fetchComment(pageId),
   );
 
@@ -77,12 +72,10 @@ export default function Home() {
     }
 
     const body: CommentBody = {
-      comment: {
         content: inputRef.current!.value,
         name: nameRef.current!.value,
         email: emailRef.current!.value,
         pageId,
-      },
     };
 
     try {
